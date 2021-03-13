@@ -8,7 +8,7 @@ interface PaginationDataModel {
   next_page_url?: string;
   prev_page_url?: string;
   path?: string;
-  from?: number;
+  from?: number | undefined;
   to?: number;
   // eslint-disable-next-line
   data?: any[];

@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-classes-per-file
 declare module 'vuetable-2' {
   import { Component, Mixins, Vue } from 'vue-property-decorator';
 

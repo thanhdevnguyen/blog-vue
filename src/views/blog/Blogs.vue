@@ -5,7 +5,7 @@
       :api-mode="false"
       :fields="blogListFields"
       :data-manager="dataManager"
-      :per-page="vuetableHelper.defaultPerPage"
+      :per-page="perPage"
       :css="vuetableHelper.tableCss"
       pagination-path="pagination"
       :no-data-template="vuetableHelper.noDataTemplate"
@@ -15,7 +15,7 @@
     <VuetablePaginationFull
       ref="blogListPagination"
       :showPerPage="true"
-      :per-page.sync="vuetableHelper.defaultPerPage"
+      :per-page.sync="perPage"
       @change-page="vuetableHelper.changePage($refs.blogList, $event)"
     />
   </div>
@@ -24,6 +24,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { Vuetable } from 'vuetable-2';
+import * from "lodash"
 // import Dropdown from '@/components/shared/dropdown/Dropdown.vue';
 import VuetableHelper from '@/helpers/vuetable-helper';
 import blogListFields from './fields/blogListFields';
@@ -43,17 +44,19 @@ export default class Blog extends Vue {
 
   blogList: Blog[] = [];
 
+  perPage = 10;
+
   mounted() {
     axios.get("https://5f55a98f39221c00167fb11a.mockapi.io/blogs").then(({ data }) => {
       console.log('have a nice day', data);
-      this.data = data;
+      this.blogList = data;
     });
   }
 
-  dataManager(sortOrder, pagination) {
-    if (this.data.length < 1) return;
+  dataManager(sortOrder: string | any[], pagination: PaginationDataModel) {
+    if (this.blogList.length < 1) return;
 
-    let local = this.data;
+    let local = this.blogList;
 
     // sortOrder can be empty, so we have to check for that as well
     if (sortOrder.length > 0) {
@@ -66,13 +69,13 @@ export default class Blog extends Vue {
       );
     }
 
-    pagination = this.$refs.vuetable.makePagination(
+    pagination = (this.$refs.blogList as Vue & { makePagination: (data: number, perPage: number) => PaginationDataModel }).makePagination(
         local.length,
         this.perPage
     );
     console.log('pagination:', pagination)
-    const from = pagination.from - 1;
-    const to = from + this.perPage;
+    const from = pagination.from && pagination.from - 1;
+    const to = from && from + this.perPage;
 
     return {
       pagination: pagination,

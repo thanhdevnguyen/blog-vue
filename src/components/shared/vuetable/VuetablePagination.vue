@@ -81,8 +81,7 @@ import { Component, Vue } from 'vue-property-decorator';
 @Component({
   mixins: [VuetablePaginationMixin],
 })
-export default class VuetablePagination extends Vue {
-}
+export default class VuetablePagination extends Vue {}
 
 </script>
 <style scoped lang="scss">
