@@ -1,6 +1,8 @@
 const Constants = {
-  PER_PAGE: 20,
-  OPTIONS_PER_PAGE: [10, 20, 50, 100, 200],
+  SERVER_FORMAT: 'YYYY-MM-DDTHH:mm Z',
+  DATE_FORMAT: 'D-M-Y',
+  DATE_TIME_FORMAT: 'DD.MM.YYYY HH:mm:ss',
+  TIME_FORMAT: 'HH:mm',
 };
 
 export default Constants;

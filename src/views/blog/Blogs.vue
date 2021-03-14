@@ -1,88 +1,162 @@
 <template>
-  <div class="container-fluid">
-    <Vuetable
-      ref="blogList"
-      :api-mode="false"
-      :fields="blogListFields"
-      :data-manager="dataManager"
-      :per-page="perPage"
-      :css="vuetableHelper.tableCss"
-      pagination-path="pagination"
-      :no-data-template="vuetableHelper.noDataTemplate"
-      @vuetable:pagination-data="vuetableHelper.paginationData($refs.blogListPagination, $event)"
-    >
-    </Vuetable>
-    <VuetablePaginationFull
-      ref="blogListPagination"
-      :showPerPage="true"
-      :per-page.sync="perPage"
-      @change-page="vuetableHelper.changePage($refs.blogList, $event)"
-    />
+  <div class="container p-md-5">
+    <div class="card">
+      <div class="card-body">
+        <div class="form-group row">
+          <div class="col-12">
+            <div class="form-group row">
+              <div class="col-12 col-md-3">
+                <label class="col-form-label float-left">Title</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    v-model="params.title"
+                />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="col-form-label float-left">Content</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    v-model="params.content"
+                />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="col-form-label float-left">Sort by</label>
+                <select
+                    class="form-control"
+                    id="sortBy"
+                    v-model="params.sortBy"
+                >
+                  <option value="createdAt">Created at</option>
+                  <option value="title">Title</option>
+                  <option value="content">Content</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="col-form-label float-left">Order</label>
+                <select
+                    class="form-control"
+                    id="orderBy"
+                    v-model="params.order"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <button
+                @click="onFiltersSet"
+                class="btn btn-success float-right"
+            >Search
+            </button>
+            <button
+                @click="resetParams"
+                class="btn btn-primary float-right mx-2"
+            >Reset
+            </button>
+          </div>
+          <div class="col-12 mt-2 border-top">
+            <ul
+                v-for="(blog, index) in blogs"
+                class="col-12 list-unstyled mt-3"
+                :key="index"
+            >
+              <BlogItem :value="blog"/>
+            </ul>
+          </div>
+          <div class="col-12 text-center pt-4">
+            <nav v-if="totalPage > 0">
+              <Paginate
+                  :pageCount="totalPage"
+                  :clickHandler="changePage"
+                  :containerClass="'pagination justify-content-end'"
+                  :page-class="'page-item'"
+                  :page-link-class="'page-link'"
+                  :prev-link-class="'page-item'"
+                  :next-link-class="'page-item'"
+                  :prev-class="'page-link'"
+                  :next-class="'page-link'"
+              />
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { Vuetable } from 'vuetable-2';
-import * from "lodash"
-// import Dropdown from '@/components/shared/dropdown/Dropdown.vue';
-import VuetableHelper from '@/helpers/vuetable-helper';
-import blogListFields from './fields/blogListFields';
-import axios from "axios";
+
+import BlogItem from './BlogItem.vue';
+import Paginate from '@/components/shared/Paginate';
+import blogService from '@/services/blog.service';
 
 @Component({
   components: {
-    ...VuetableHelper.components,
-    Vuetable,
-    // Dropdown,
+    BlogItem,
+    Paginate,
   },
 })
-export default class Blog extends Vue {
-  blogListFields: FieldsVuetable[] = blogListFields;
-
-  vuetableHelper: VuetableHelperModel = VuetableHelper;
+export default class Blogs extends Vue {
 
   blogList: Blog[] = [];
 
-  perPage = 10;
+  blogs: Blog[] = [];
+
+  params: ParamsFilter = this.defaultParams();
+
+  blogCount = 0;
+
+  totalPage = 0;
 
   mounted() {
-    axios.get("https://5f55a98f39221c00167fb11a.mockapi.io/blogs").then(({ data }) => {
-      console.log('have a nice day', data);
-      this.blogList = data;
+    this.getAllBlogs();
+    this.getBlogsByParams(this.params);
+  }
+
+  defaultParams() {
+    return {
+      perPage: 10,
+      page: 1,
+      title: '',
+      content: '',
+      sortBy: 'createdAt',
+      order: 'asc',
+    }
+  }
+
+  getAllBlogs() {
+    blogService.listAll().then(({data}) => {
+      this.blogList = data as Blog[];
+      this.blogCount = this.blogList.length;
+      if (this.params.perPage) {
+        this.totalPage = Math.ceil(this.blogCount / this.params.perPage);
+      }
     });
   }
 
-  dataManager(sortOrder: string | any[], pagination: PaginationDataModel) {
-    if (this.blogList.length < 1) return;
-
-    let local = this.blogList;
-
-    // sortOrder can be empty, so we have to check for that as well
-    if (sortOrder.length > 0) {
-      console.log("orderBy:", sortOrder[0].sortField, sortOrder[0].direction);
-      // eslint-disable-next-line no-undef
-      local = _.orderBy(
-          local,
-          sortOrder[0].sortField,
-          sortOrder[0].direction
-      );
-    }
-
-    pagination = (this.$refs.blogList as Vue & { makePagination: (data: number, perPage: number) => PaginationDataModel }).makePagination(
-        local.length,
-        this.perPage
-    );
-    console.log('pagination:', pagination)
-    const from = pagination.from && pagination.from - 1;
-    const to = from && from + this.perPage;
-
-    return {
-      pagination: pagination,
-      // eslint-disable-next-line no-undef
-      data: _.slice(local, from, to)
-    };
+  getBlogsByParams(params: ParamsFilter) {
+    blogService.listByParams(params).then(({data}) => {
+      this.blogs = data;
+    })
   }
 
+  onFiltersSet() {
+    this.getBlogsByParams(this.params);
+  }
+
+  changePage(page: number) {
+    this.params.page = page;
+    this.getBlogsByParams(this.params);
+  }
+
+  resetParams() {
+    this.params = this.defaultParams();
+    this.getBlogsByParams(this.params);
+  }
 }
 </script>
