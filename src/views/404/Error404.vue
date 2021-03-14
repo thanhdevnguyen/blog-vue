@@ -1,7 +1,7 @@
 <template>
-  <div id="notfound">
-    <div class="notfound">
-      <div class="notfound-404">
+  <div class="container p-5">
+    <div class="align-items-center">
+      <div class="text-center">
         <h3>Oops! Page not found</h3>
         <h1><span>4</span><span>0</span><span>4</span></h1>
       </div>
@@ -13,5 +13,5 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 @Component
-export default class Page404 extends Vue {}
+export default class Error404 extends Vue {}
 </script>

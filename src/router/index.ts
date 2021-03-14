@@ -13,7 +13,7 @@ const router = new VueRouter({
     {
       path: '/*',
       name: 'NotFound',
-      component: () => import(/* webpackChunkName: "portal" */ '@/views/404/Error404.vue'),
+      component: () => import(/* webpackChunkName: "public" */ '@/views/404/Error404.vue'),
     },
   ],
 })

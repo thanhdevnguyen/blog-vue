@@ -13,7 +13,7 @@ const publicRoutes: Array<RouteConfig> = [
       },
       {
         path: ':id/detail',
-        name: 'Blog Detail',
+        name: 'blogDetail',
         component: () => import(/* webpackChunkName: "public" */ '@/views/blog/BlogDetail.vue'),
       },
     ],
