@@ -32,7 +32,7 @@ export default class BlogDetail extends Vue {
   blog: Blog = {};
 
   mounted(): void {
-    const id = this.$route.params.id;
+    const id = +this.$route.params.id;
     this.getBlogById(id);
   }
 
