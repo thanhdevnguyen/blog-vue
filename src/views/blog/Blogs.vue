@@ -72,6 +72,7 @@
               <Paginate
                   :pageCount="totalPage"
                   :clickHandler="changePage"
+                  :firstLastButton="true"
                   :containerClass="'pagination justify-content-end'"
                   :page-class="'page-item'"
                   :page-link-class="'page-link'"
@@ -92,7 +93,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 
 import BlogItem from './BlogItem.vue';
-import Paginate from '@/components/shared/Paginate';
+import Paginate from '@/components/shared/Paginate.vue';
 import blogService from '@/services/blog.service';
 
 @Component({
